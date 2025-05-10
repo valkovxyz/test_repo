@@ -100,13 +100,13 @@ defineExpose({
       background-color: #0ff;
       
       &.far-left {
-        right: 50%; 
+        right: 57%;
         width: 50px;
         margin-right: 69px;
       }
       
       &.far-right {
-        left: 50%;
+        left: 57%;
         width: 50px;
         margin-left: 69px;
       }
@@ -133,13 +133,13 @@ defineExpose({
         background-color: #0ff;
         
         &.left {
-          right: 50%;
+          right: 57%;
           width: 34px;
           margin-right: 35px;
         }
         
         &.right {
-          left: 50%;
+          left: 57%;
           width: 34px;
           margin-left: 35px;
         }
@@ -182,13 +182,13 @@ defineExpose({
         
         &.left {
           right: 50%;
-          width: 19px;
+          width: 14px;
           margin-right: 8px;
         }
         
         &.right {
           left: 50%;
-          width: 19px;
+          width: 14px;
           margin-left: 8px;
         }
       }
@@ -201,7 +201,7 @@ defineExpose({
         
         &.top {
           bottom: 50%;
-          height: 19px;
+          height: 14px;
           margin-bottom: 8px;
           transform: translateX(-50%);
         }
