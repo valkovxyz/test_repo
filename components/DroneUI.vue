@@ -160,7 +160,8 @@ watch(altitude, (newValue, oldValue) => {
   display: flex;
   align-items: flex-start;
   font-family: 'ARS-M-VCR', monospace;
-  background-color: yellow;
+  background-image: url('/images/background.png');
+  background-size: cover;
 
   .main-screen {
     border: 2px solid #333;
