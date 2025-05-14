@@ -61,7 +61,7 @@ const signalBars = computed(() => {
     background: #fff;
     padding: 2px 2px;
     color: #000;
-    width: 43px;
+    width: 35px;
     text-align: right;
   }
 

@@ -1,5 +1,5 @@
 <template lang="pug">
-.drone-settings-menu(:style="{ right: 0, top: 0 }")
+.drone-settings-menu
   .menu-title HUD
   
   .settings-group
@@ -59,7 +59,7 @@
     .setting-control
       select(v-model="localMode" @change="updateMode")
         option(value="STAB") STAB
-        option(value="GPS") GPS
+        option(value="HORIZON") HORIZON
         option(value="AUTO") AUTO
   
   .settings-group
@@ -398,12 +398,15 @@ const formatNumber = (value) => {
 <style lang="scss" scoped>
 .drone-settings-menu {
   position: absolute;
+  top: 0;
+  right: -320px;
   width: 300px;
   background-color: rgba(0, 0, 0, 0.8);
   color: #fff;
   font-family: 'ARS-M-VCR', monospace;
   padding: 10px;
   box-sizing: border-box;
+  z-index: 10;
   
   .menu-title {
     text-align: center;

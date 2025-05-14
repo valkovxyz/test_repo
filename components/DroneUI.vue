@@ -1,5 +1,22 @@
 <template lang="pug">
   .drone-ui
+    BackgroundImage(
+      ref="backgroundRef"
+      :offsetX="backgroundOffset.x"
+      :offsetY="backgroundOffset.y"
+      :isHorizonMode="isHorizonMode"
+      :imageSrc="backgroundImageSrc"
+    )
+    
+    // Прицел виден только в режиме HORIZON
+    TargetCrosshair(
+      v-if="isHorizonMode"
+      :posX="targetPosition.x"
+      :posY="targetPosition.y"
+      :screenWidth="720"
+      :screenHeight="480"
+    )
+    
     .main-screen
       FlightAttitudeIndicator(
         :roll="roll"
@@ -8,6 +25,7 @@
         :pitchSensitivity="hudSettings.pitchSensitivity"
         :externalRollFactor="hudSettings.externalRollFactor"
         :externalPitchFactor="hudSettings.externalPitchFactor"
+        :style="horizonModeStyle"
       )
 
       SpeedAltitudeBlock(
@@ -76,6 +94,18 @@
         :posX="501"
         :posY="436"
       )
+    
+    // Панель с увеличенным изображением цели
+    TargetZoomPanel(
+      ref="zoomPanelRef"
+      :isActive="isHorizonMode"
+      :targetPosX="targetPosition.x"
+      :targetPosY="targetPosition.y"
+      :isHorizonMode="isHorizonMode"
+      :imageSrc="backgroundImageSrc"
+      :mainScreenWidth="720"
+      :mainScreenHeight="480"
+    )
 
     DroneSettingsMenu(
       v-model:speed="speed"
@@ -93,8 +123,14 @@
 </template>
 
 <script setup>
-import {ref, watch} from 'vue'
+import {ref, computed, watch, onMounted, onUnmounted} from 'vue'
 import FlightAttitudeIndicator from '~/components/FlightAttitudeIndicator.vue'
+import BackgroundImage from '~/components/BackgroundImage.vue'
+import TargetCrosshair from '~/components/TargetCrosshair.vue'
+import TargetZoomPanel from '~/components/TargetZoomPanel.vue'
+
+// Путь к фоновому изображению по умолчанию
+const backgroundImageSrc = ref('/images/background.png')
 
 const speed = ref(110)
 const altitude = ref(100)
@@ -112,6 +148,76 @@ const hudSettings = ref({
   pitchSensitivity: 1.0,
   externalRollFactor: 0.3,
   externalPitchFactor: 0.3
+})
+
+const isHorizonMode = computed(() => {
+  return mode.value === 'HORIZON'
+})
+
+const horizonModeStyle = computed(() => {
+  if (isHorizonMode.value) {
+    return {
+      transform: 'translateY(-96px)'
+    }
+  }
+  return {}
+})
+const targetPosition = ref({
+  x: 0.5,
+  y: 0.4
+})
+
+const targetMoveStep = ref(0.01)
+
+const updateTargetPosition = (x, y) => {
+  targetPosition.value = {
+    x: Math.max(0, Math.min(1, x)),
+    y: Math.max(0, Math.min(1, y))
+  }
+}
+
+const moveTarget = (deltaX, deltaY) => {
+  updateTargetPosition(
+    targetPosition.value.x + deltaX,
+    targetPosition.value.y + deltaY
+  )
+}
+
+const handleKeyDown = (event) => {
+  if (!isHorizonMode.value) return
+  
+  const step = targetMoveStep.value
+  
+  switch(event.key) {
+    case 'ArrowUp':
+      moveTarget(0, -step)
+      event.preventDefault()
+      break
+    case 'ArrowDown':
+      moveTarget(0, step)
+      event.preventDefault()
+      break
+    case 'ArrowLeft':
+      moveTarget(-step, 0)
+      event.preventDefault()
+      break
+    case 'ArrowRight':
+      moveTarget(step, 0)
+      event.preventDefault()
+      break
+    case 'Home':
+      updateTargetPosition(0.5, 0.5)
+      event.preventDefault()
+      break
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
 })
 
 const prevSpeed = ref(speed.value)
@@ -153,6 +259,44 @@ watch(altitude, (newValue, oldValue) => {
     }
   }
 })
+
+const backgroundRef = ref(null)
+const zoomPanelRef = ref(null)
+const backgroundOffset = ref({ x: 0, y: 0 })
+
+const updateBackgroundImage = (newSrc) => {
+  backgroundImageSrc.value = newSrc
+  
+  if (backgroundRef.value) {
+    backgroundRef.value.updateImage(newSrc)
+  }
+  
+  if (zoomPanelRef.value) {
+    zoomPanelRef.value.updateImage(newSrc)
+  }
+}
+
+const updateBackgroundPosition = (x, y) => {
+  backgroundOffset.value = { x, y }
+}
+
+watch(mode, (newMode) => {
+  if (newMode === 'HORIZON') {
+    if (targetPosition.value.x === 0.5 && targetPosition.value.y === 0.5) {
+      updateTargetPosition(0.5, 0.4)
+    }
+  }
+})
+
+defineExpose({
+  updateBackgroundPosition,
+  updateTargetPosition,
+  updateBackgroundImage,
+  moveTarget,
+  setTargetMoveStep: (step) => {
+    targetMoveStep.value = Math.max(0.001, Math.min(0.1, step))
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -160,83 +304,18 @@ watch(altitude, (newValue, oldValue) => {
   display: flex;
   align-items: flex-start;
   font-family: 'ARS-M-VCR', monospace;
-  background-image: url('/images/background.png');
-  background-size: cover;
+  position: relative;
+  width: 720px;
+  height: 480px;
 
   .main-screen {
     border: 2px solid #333;
     overflow: hidden;
-    width: 720px;
-    height: 480px;
+    width: 100%;
+    height: 100%;
     position: relative;
-}
-
-.drone-target {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120px;
-  height: 120px;
-
-  .center-point {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid #0ff;
-    box-sizing: border-box;
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 4px;
-      height: 4px;
-      background-color: #0ff;
-      border-radius: 50%;
-    }
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.2);
   }
-
-  .horizontal-line {
-    position: absolute;
-    top: 50%;
-    height: 2px;
-    background-color: #0ff;
-
-    &.left {
-      right: 70%;
-      width: 20px;
-    }
-
-    &.right {
-      left: 70%;
-      width: 20px;
-    }
-  }
-
-  .vertical-line {
-    position: absolute;
-    left: 50%;
-    width: 2px;
-    background-color: #0ff;
-
-    &.top {
-      bottom: 70%;
-      height: 20px;
-    }
-
-    &.bottom {
-      top: 70%;
-      height: 20px;
-    }
-  }
-}
-
 }
 </style> 

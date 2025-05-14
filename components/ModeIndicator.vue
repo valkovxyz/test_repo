@@ -24,7 +24,7 @@ defineProps({
 <style lang="scss" scoped>
 .mode-indicator {
   position: absolute;
-  width: 148px;
+  width: 183px;
   height: 32px;
   background-color: #000;
   color: #fff;
@@ -37,9 +37,12 @@ defineProps({
 
   .title {
     text-transform: uppercase;
+    margin-right: 4px;
   }
 
   .value {
+    width: 80px;
+    text-align: center;
     padding: 2px 8px;
     text-transform: uppercase;
     
@@ -48,8 +51,8 @@ defineProps({
       color: #000;
     }
     
-    &.mode-gps {
-      background-color: #00f;
+    &.mode-horizon {
+      background-color: #C202FD;
     }
     
     &.mode-auto {
