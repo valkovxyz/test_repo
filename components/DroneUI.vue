@@ -94,8 +94,7 @@
         :posX="501"
         :posY="436"
       )
-    
-    // Панель с увеличенным изображением цели
+
     TargetZoomPanel(
       ref="zoomPanelRef"
       :isActive="isHorizonMode"
