@@ -7,16 +7,7 @@
       :isHorizonMode="isHorizonMode"
       :imageSrc="backgroundImageSrc"
     )
-    
-    // Прицел виден только в режиме HORIZON
-    TargetCrosshair(
-      v-if="isHorizonMode"
-      :posX="targetPosition.x"
-      :posY="targetPosition.y"
-      :screenWidth="720"
-      :screenHeight="480"
-    )
-    
+
     .main-screen
       FlightAttitudeIndicator(
         :roll="roll"
@@ -25,6 +16,8 @@
         :pitchSensitivity="hudSettings.pitchSensitivity"
         :externalRollFactor="hudSettings.externalRollFactor"
         :externalPitchFactor="hudSettings.externalPitchFactor"
+        :posX="358"
+        :posY="118"
         :style="horizonModeStyle"
       )
 
@@ -64,7 +57,13 @@
         :posY="106"
       )
 
-      ModeIndicator(
+      AimIndicator(
+        :isActive="isAimMode"
+        :posX="10"
+        :posY="356"
+      )
+
+      FlightModeIndicator(
         :mode="mode"
         :posX="10"
         :posY="396"
@@ -82,6 +81,13 @@
         :posY="436"
       )
 
+      SkidIndicator(
+        v-if="isAimMode"
+        :value="skidValue"
+        :posX="598"
+        :posY="356"
+      )
+
       SignalIndicator(
         :value="signal"
         :posX="550"
@@ -95,6 +101,46 @@
         :posY="436"
       )
 
+      LockIndicator(
+        v-if="crosshairMode === 4"
+        :value="targetPercentage"
+        :posX="360"
+        :posY="436"
+      )
+
+      LockAttackIndicator(
+        v-if="crosshairMode === 5"
+        :posX="360"
+        :posY="436"
+      )
+
+    AimLine(
+      :isActive="isAimMode"
+      :length="aimLineLength"
+      :angle="aimLineAngle"
+      :centerX="360"
+      :centerY="120"
+      :squareSize="squareSize"
+      :squarePosition="squarePosition"
+      :reticleOffsetX="reticleOffsetX"
+      :reticleOffsetY="reticleOffsetY"
+    )
+
+    TargetCrosshair(
+      v-if="isHorizonMode || (crosshairMode === 4) || (crosshairMode === 5)"
+      ref="targetCrosshairRef"
+      :posX="targetPosition.x"
+      :posY="targetPosition.y"
+      :screenWidth="720"
+      :screenHeight="480"
+      :crosshairMode="crosshairMode"
+      :isHorizonMode="isHorizonMode"
+      :faiOffset="faiOffsetNormalized"
+      :faiCenterX="flightAttitudeCenter.x"
+      :faiCenterY="flightAttitudeCenter.y"
+      v-model:targetPercentage="targetPercentage"
+    )
+
     TargetZoomPanel(
       ref="zoomPanelRef"
       :isActive="isHorizonMode"
@@ -104,6 +150,7 @@
       :imageSrc="backgroundImageSrc"
       :mainScreenWidth="720"
       :mainScreenHeight="480"
+      :crosshairMode="crosshairMode"
     )
 
     DroneSettingsMenu(
@@ -118,6 +165,16 @@
       v-model:batteryPercentage="batteryPercentage"
       v-model:voltage="voltage"
       v-model:hudSettings="hudSettings"
+      v-model:crosshairMode="crosshairMode"
+      v-model:isAimMode="isAimMode"
+      v-model:aimLineLength="aimLineLength"
+      v-model:aimLineAngle="aimLineAngle"
+      v-model:skidValue="skidValue"
+      v-model:squarePosition="squarePosition"
+      v-model:squareSize="squareSize"
+      v-model:reticleOffsetX="reticleOffsetX"
+      v-model:reticleOffsetY="reticleOffsetY"
+      v-model:targetPercentage="targetPercentage"
     )
 </template>
 
@@ -127,27 +184,50 @@ import FlightAttitudeIndicator from '~/components/FlightAttitudeIndicator.vue'
 import BackgroundImage from '~/components/BackgroundImage.vue'
 import TargetCrosshair from '~/components/TargetCrosshair.vue'
 import TargetZoomPanel from '~/components/TargetZoomPanel.vue'
+import AimIndicator from '~/components/AimIndicator.vue'
+import SkidIndicator from '~/components/SkidIndicator.vue'
+import AimLine from '~/components/AimLine.vue'
+import SpeedAltitudeBlock from '~/components/SpeedAltitudeBlock.vue'
+import AngleIndicator from '~/components/AngleIndicator.vue'
+import FlightModeIndicator from '~/components/FlightModeIndicator.vue'
+import GasIndicator from '~/components/GasIndicator.vue'
+import FlapsIndicator from '~/components/FlapsIndicator.vue'
+import SignalIndicator from '~/components/SignalIndicator.vue'
+import BatteryIndicator from '~/components/BatteryIndicator.vue'
+import LockIndicator from '~/components/LockIndicator.vue'
+import LockAttackIndicator from '~/components/LockAttackIndicator.vue'
 
-// Путь к фоновому изображению по умолчанию
-const backgroundImageSrc = ref('/images/background.png')
+const backgroundImageSrc = ref('/images/background2.png')
+
+const roll = ref(0)
+const pitch = ref(0)
+const hudSettings = ref({
+  rollSensitivity: 1,
+  pitchSensitivity: 1,
+  externalRollFactor: 1,
+  externalPitchFactor: 1
+})
 
 const speed = ref(110)
 const altitude = ref(100)
-const roll = ref(-3)
-const pitch = ref(-5)
 const mode = ref('STAB')
-const gas = ref(95)
+const crosshairMode = ref(1)
+const isAimMode = ref(false)
+const aimLineLength = ref(0)
+const aimLineAngle = ref(0)
+const gas = ref(50)
 const flaps = ref(0)
-const signal = ref(88)
-const batteryPercentage = ref(72)
-const voltage = ref(22.0)
-
-const hudSettings = ref({
-  rollSensitivity: 1.0,
-  pitchSensitivity: 1.0,
-  externalRollFactor: 0.3,
-  externalPitchFactor: 0.3
-})
+const signal = ref(80)
+const batteryPercentage = ref(75)
+const voltage = ref(12.6)
+const skidValue = ref(0)
+const squarePosition = ref(100)
+const squareSize = ref(50)
+const reticleOffsetX = ref(0)
+const reticleOffsetY = ref(0)
+const targetPercentage = ref(56)
+const faiOffsetNormalized = ref({ x: 0, y: 0 })
+const flightAttitudeCenter = ref({ x: 358, y: 118 })
 
 const isHorizonMode = computed(() => {
   return mode.value === 'HORIZON'
@@ -156,10 +236,14 @@ const isHorizonMode = computed(() => {
 const horizonModeStyle = computed(() => {
   if (isHorizonMode.value) {
     return {
-      transform: 'translateY(-96px)'
+      transform: 'translate(-50%, calc(-50% - 96px))',
+      transition: 'transform 0.5s ease-out'
     }
   }
-  return {}
+  return {
+    transform: 'translate(-50%, -50%)',
+    transition: 'transform 0.5s ease-out'
+  }
 })
 const targetPosition = ref({
   x: 0.5,
@@ -184,9 +268,9 @@ const moveTarget = (deltaX, deltaY) => {
 
 const handleKeyDown = (event) => {
   if (!isHorizonMode.value) return
-  
+
   const step = targetMoveStep.value
-  
+
   switch(event.key) {
     case 'ArrowUp':
       moveTarget(0, -step)
@@ -230,7 +314,7 @@ const STABILIZATION_DELAY = 250
 watch(speed, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     prevSpeed.value = oldValue
-    
+
     clearTimeout(speedStabilizationTimeout)
     speedStabilizationTimeout = setTimeout(() => {
       prevSpeed.value = speed.value
@@ -246,7 +330,7 @@ watch(speed, (newValue, oldValue) => {
 watch(altitude, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     prevAltitude.value = oldValue
-    
+
     clearTimeout(altitudeStabilizationTimeout)
     altitudeStabilizationTimeout = setTimeout(() => {
       prevAltitude.value = altitude.value
@@ -261,15 +345,16 @@ watch(altitude, (newValue, oldValue) => {
 
 const backgroundRef = ref(null)
 const zoomPanelRef = ref(null)
+const targetCrosshairRef = ref(null)
 const backgroundOffset = ref({ x: 0, y: 0 })
 
 const updateBackgroundImage = (newSrc) => {
   backgroundImageSrc.value = newSrc
-  
+
   if (backgroundRef.value) {
     backgroundRef.value.updateImage(newSrc)
   }
-  
+
   if (zoomPanelRef.value) {
     zoomPanelRef.value.updateImage(newSrc)
   }
@@ -279,11 +364,42 @@ const updateBackgroundPosition = (x, y) => {
   backgroundOffset.value = { x, y }
 }
 
-watch(mode, (newMode) => {
+watch(mode, (newMode, oldMode) => {
   if (newMode === 'HORIZON') {
     if (targetPosition.value.x === 0.5 && targetPosition.value.y === 0.5) {
       updateTargetPosition(0.5, 0.4)
     }
+    isAimMode.value = false
+
+    if (crosshairMode.value === 4) {
+      crosshairMode.value = 1
+    }
+  } else if (newMode === 'STAB' && oldMode === 'HORIZON') {
+  }
+})
+
+watch(crosshairMode, (newMode) => {
+  if (newMode === 4 && mode.value === 'HORIZON') {
+    mode.value = 'STAB'
+  }
+
+  if (newMode === 5) {
+    mode.value = 'AUTO'
+  }
+})
+
+watch(isAimMode, (newValue) => {
+  if (newValue) {
+    aimLineLength.value = 0
+    squarePosition.value = 100
+    reticleOffsetX.value = 0
+    reticleOffsetY.value = 0
+  }
+})
+
+watch(aimLineLength, (newValue) => {
+  if (squarePosition.value === 0) {
+    squarePosition.value = 0
   }
 })
 
@@ -294,6 +410,18 @@ defineExpose({
   moveTarget,
   setTargetMoveStep: (step) => {
     targetMoveStep.value = Math.max(0.001, Math.min(0.1, step))
+  },
+  getDisplayTargetPosition: () => {
+    if (targetCrosshairRef.value && (crosshairMode.value === 4 || crosshairMode.value === 5)) {
+      return {
+        ...targetCrosshairRef.value.displayPosition,
+        percentage: targetPercentage.value
+      };
+    }
+    return {
+      ...targetPosition.value,
+      percentage: targetPercentage.value
+    };
   }
 })
 </script>
@@ -314,7 +442,13 @@ defineExpose({
     height: 100%;
     position: relative;
     z-index: 1;
-    background-color: rgba(0, 0, 0, 0.2);
+  }
+
+  .target-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 200;
   }
 }
 </style> 

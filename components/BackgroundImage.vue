@@ -26,13 +26,12 @@ const props = defineProps({
   },
   imageSrc: {
     type: String,
-    default: '/images/background.png'
+    default: '/images/background2.png'
   }
 })
 
-// Добавляем смещение вверх на 10% в режиме HORIZON
 const containerStyle = computed(() => {
-  const horizonOffset = props.isHorizonMode ? -48 : 0 // 10% от 480px = 48px
+  const horizonOffset = props.isHorizonMode ? -48 : 0
   
   return {
     transform: `translate(${props.offsetX}px, ${props.offsetY + horizonOffset}px)`
@@ -50,7 +49,6 @@ const imageStyle = computed(() => {
 
 const imageRef = ref(null)
 
-// Метод для обновления изображения
 const updateImage = (newSrc) => {
   if (imageRef.value) {
     imageRef.value.src = newSrc

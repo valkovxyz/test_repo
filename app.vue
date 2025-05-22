@@ -27,7 +27,7 @@
     </div>
     
     <div class="target-position">
-      Позиция цели: X: {{ targetPosition.x.toFixed(3) }}, Y: {{ targetPosition.y.toFixed(3) }}
+      Позиция цели: X: {{ displayPosition.x.toFixed(3) }}, Y: {{ displayPosition.y.toFixed(3) }}
     </div>
     
     <div class="keyboard-help">
@@ -43,12 +43,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import DroneUI from '~/components/DroneUI.vue'
 
 const droneUiRef = ref(null)
 const backgroundOffset = ref({ x: 0, y: 0 })
 const targetPosition = ref({ x: 0.5, y: 0.4 })
+
+// Вычисляемое свойство для отображения корректной позиции цели
+const displayPosition = computed(() => {
+  if (droneUiRef.value) {
+    const position = droneUiRef.value.getDisplayTargetPosition();
+    return position;
+  }
+  return targetPosition.value;
+});
 
 // Определяем шаги перемещения
 const STEP_SIZES = {
