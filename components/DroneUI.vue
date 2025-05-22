@@ -213,7 +213,7 @@ const altitude = ref(100)
 const mode = ref('STAB')
 const crosshairMode = ref(1)
 const isAimMode = ref(false)
-const aimLineLength = ref(0)
+const aimLineLength = ref(180)
 const aimLineAngle = ref(0)
 const gas = ref(50)
 const flaps = ref(0)
@@ -222,7 +222,7 @@ const batteryPercentage = ref(75)
 const voltage = ref(12.6)
 const skidValue = ref(0)
 const squarePosition = ref(100)
-const squareSize = ref(50)
+const squareSize = ref(124)
 const reticleOffsetX = ref(0)
 const reticleOffsetY = ref(0)
 const targetPercentage = ref(56)
@@ -390,7 +390,7 @@ watch(crosshairMode, (newMode) => {
 
 watch(isAimMode, (newValue) => {
   if (newValue) {
-    aimLineLength.value = 0
+    aimLineLength.value = 180
     squarePosition.value = 100
     reticleOffsetX.value = 0
     reticleOffsetY.value = 0

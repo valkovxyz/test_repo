@@ -111,6 +111,27 @@ const clampedAngle = computed(() =>
 const actualLength = computed(() => 
   Math.min(360, Math.max(0, props.length))
 )
+
+const calculatedSquarePosition = computed(() => {
+  const basePosition = 360 + (actualLength.value * (props.squarePosition / 100))
+  return basePosition
+})
+
+const reticleOffsetXPx = computed(() => {
+  return (props.reticleOffsetX / 100) * 20
+})
+
+const reticleOffsetYPx = computed(() => {
+  return (props.reticleOffsetY / 100) * 20
+})
+
+const wrapperStyle = computed(() => {
+  return {
+    transform: `translate(-50%, -50%) rotate(${clampedAngle.value}deg)`,
+    left: `${props.centerX}px`,
+    top: `${props.centerY}px`
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -124,6 +145,7 @@ const actualLength = computed(() =>
   .aim-line-wrapper {
     position: absolute;
     overflow: visible;
+    transform-origin: center center;
   }
   
   .aim-svg {
