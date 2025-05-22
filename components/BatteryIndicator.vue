@@ -40,7 +40,7 @@ const formattedVoltage = computed(() => {
 
 const batteryBars = computed(() => {
   const percent = Number(props.percentage)
-  if (percent >= 90) return 3
+  if (percent >= 75) return 3
   if (percent >= 50) return 2
   if (percent >= 25) return 1
   return 0

@@ -1,5 +1,6 @@
 <template lang="pug">
   .drone-ui
+    // Слой 1: Фон (z-index: 1)
     BackgroundImage(
       ref="backgroundRef"
       :offsetX="backgroundOffset.x"
@@ -8,10 +9,13 @@
       :imageSrc="backgroundImageSrc"
     )
 
-    .main-screen
+    // Слой 2: Прицелы и FAI (z-index: 10)
+    .aiming-layer
       FlightAttitudeIndicator(
-        :roll="roll"
-        :pitch="pitch"
+        :internalRoll="internalRoll"
+        :externalRoll="externalRoll"
+        :internalPitch="internalPitch"
+        :externalPitch="externalPitch"
         :rollSensitivity="hudSettings.rollSensitivity"
         :pitchSensitivity="hudSettings.pitchSensitivity"
         :externalRollFactor="hudSettings.externalRollFactor"
@@ -21,6 +25,52 @@
         :style="horizonModeStyle"
       )
 
+      // Подслой 2.1: Пунктирная линия (z-index: 11)
+      .aim-line-layer
+        AimLine(
+          v-if="isAimMode"
+          :isActive="isAimMode"
+          :length="aimLineLength"
+          :angle="aimLineAngle"
+          :centerX="360"
+          :centerY="120"
+          :squareSize="squareSize"
+          :squarePosition="squarePosition"
+          :reticleOffsetX="reticleOffsetX"
+          :reticleOffsetY="reticleOffsetY"
+        )
+
+      // Подслой 2.2: Квадрат и прицелы (z-index: 12)
+      .crosshair-layer
+        TargetCrosshair(
+          v-if="isHorizonMode || (crosshairMode === 4) || (crosshairMode === 5)"
+          ref="targetCrosshairRef"
+          :posX="targetPosition.x"
+          :posY="targetPosition.y"
+          :screenWidth="720"
+          :screenHeight="480"
+          :crosshairMode="crosshairMode"
+          :isHorizonMode="isHorizonMode"
+          :faiOffset="faiOffsetNormalized"
+          :faiCenterX="flightAttitudeCenter.x"
+          :faiCenterY="flightAttitudeCenter.y"
+          v-model:targetPercentage="targetPercentage"
+        )
+
+      TargetZoomPanel(
+        ref="zoomPanelRef"
+        :isActive="isHorizonMode"
+        :targetPosX="targetPosition.x"
+        :targetPosY="targetPosition.y"
+        :isHorizonMode="isHorizonMode"
+        :imageSrc="backgroundImageSrc"
+        :mainScreenWidth="720"
+        :mainScreenHeight="480"
+        :crosshairMode="crosshairMode"
+      )
+
+    // Слой 3: Индикаторы со значениями (z-index: 20)
+    .indicators-layer
       SpeedAltitudeBlock(
         type="speed"
         title="ШВИДК"
@@ -44,7 +94,7 @@
       AngleIndicator(
         type="roll"
         title="КРЕН"
-        :value="roll"
+        :value="internalRoll"
         :posX="10"
         :posY="106"
       )
@@ -52,12 +102,13 @@
       AngleIndicator(
         type="pitch"
         title="ТАНГ"
-        :value="pitch"
+        :value="internalPitch"
         :posX="594"
         :posY="106"
       )
 
       AimIndicator(
+        v-if="isAimMode"
         :isActive="isAimMode"
         :posX="10"
         :posY="356"
@@ -81,7 +132,7 @@
         :posY="436"
       )
 
-      SkidIndicator(
+      DropIndicator(
         v-if="isAimMode"
         :value="skidValue"
         :posX="598"
@@ -101,63 +152,28 @@
         :posY="436"
       )
 
-      LockIndicator(
-        v-if="crosshairMode === 4"
-        :value="targetPercentage"
-        :posX="360"
-        :posY="436"
-      )
+      // Подслой 3.1: Индикаторы квадрата (z-index: 25)
+      .lock-indicators-layer
+        LockIndicator(
+          v-if="crosshairMode === 4"
+          :value="targetPercentage"
+          :posX="360"
+          :posY="436"
+        )
 
-      LockAttackIndicator(
-        v-if="crosshairMode === 5"
-        :posX="360"
-        :posY="436"
-      )
-
-    AimLine(
-      :isActive="isAimMode"
-      :length="aimLineLength"
-      :angle="aimLineAngle"
-      :centerX="360"
-      :centerY="120"
-      :squareSize="squareSize"
-      :squarePosition="squarePosition"
-      :reticleOffsetX="reticleOffsetX"
-      :reticleOffsetY="reticleOffsetY"
-    )
-
-    TargetCrosshair(
-      v-if="isHorizonMode || (crosshairMode === 4) || (crosshairMode === 5)"
-      ref="targetCrosshairRef"
-      :posX="targetPosition.x"
-      :posY="targetPosition.y"
-      :screenWidth="720"
-      :screenHeight="480"
-      :crosshairMode="crosshairMode"
-      :isHorizonMode="isHorizonMode"
-      :faiOffset="faiOffsetNormalized"
-      :faiCenterX="flightAttitudeCenter.x"
-      :faiCenterY="flightAttitudeCenter.y"
-      v-model:targetPercentage="targetPercentage"
-    )
-
-    TargetZoomPanel(
-      ref="zoomPanelRef"
-      :isActive="isHorizonMode"
-      :targetPosX="targetPosition.x"
-      :targetPosY="targetPosition.y"
-      :isHorizonMode="isHorizonMode"
-      :imageSrc="backgroundImageSrc"
-      :mainScreenWidth="720"
-      :mainScreenHeight="480"
-      :crosshairMode="crosshairMode"
-    )
+        LockAttackIndicator(
+          v-if="crosshairMode === 5"
+          :posX="360"
+          :posY="436"
+        )
 
     DroneSettingsMenu(
       v-model:speed="speed"
       v-model:altitude="altitude"
-      v-model:roll="roll"
-      v-model:pitch="pitch"
+      v-model:internalRoll="internalRoll"
+      v-model:externalRoll="externalRoll"
+      v-model:internalPitch="internalPitch"
+      v-model:externalPitch="externalPitch"
       v-model:mode="mode"
       v-model:gas="gas"
       v-model:flaps="flaps"
@@ -185,7 +201,7 @@ import BackgroundImage from '~/components/BackgroundImage.vue'
 import TargetCrosshair from '~/components/TargetCrosshair.vue'
 import TargetZoomPanel from '~/components/TargetZoomPanel.vue'
 import AimIndicator from '~/components/AimIndicator.vue'
-import SkidIndicator from '~/components/SkidIndicator.vue'
+import DropIndicator from '~/components/DropIndicator.vue'
 import AimLine from '~/components/AimLine.vue'
 import SpeedAltitudeBlock from '~/components/SpeedAltitudeBlock.vue'
 import AngleIndicator from '~/components/AngleIndicator.vue'
@@ -199,8 +215,10 @@ import LockAttackIndicator from '~/components/LockAttackIndicator.vue'
 
 const backgroundImageSrc = ref('/images/background2.png')
 
-const roll = ref(0)
-const pitch = ref(0)
+const internalRoll = ref(0)
+const externalRoll = ref(0)
+const internalPitch = ref(0)
+const externalPitch = ref(0)
 const hudSettings = ref({
   rollSensitivity: 1,
   pitchSensitivity: 1,
@@ -236,7 +254,7 @@ const isHorizonMode = computed(() => {
 const horizonModeStyle = computed(() => {
   if (isHorizonMode.value) {
     return {
-      transform: 'translate(-50%, calc(-50% - 96px))',
+      transform: 'translate(-50%, calc(-50% - 86px))',
       transition: 'transform 0.5s ease-out'
     }
   }
@@ -403,6 +421,16 @@ watch(aimLineLength, (newValue) => {
   }
 })
 
+// Вычисляемое значение общего крена как среднее арифметическое
+const averageRoll = computed(() => {
+  return (internalRoll.value + externalRoll.value) / 2
+})
+
+// Вычисляемое значение общего тангажа как среднее арифметическое  
+const averagePitch = computed(() => {
+  return (internalPitch.value + externalPitch.value) / 2
+})
+
 defineExpose({
   updateBackgroundPosition,
   updateTargetPosition,
@@ -435,13 +463,55 @@ defineExpose({
   width: 720px;
   height: 480px;
 
-  .main-screen {
-    border: 2px solid #333;
-    overflow: hidden;
+  // Слой 1: Фон
+  .background-image {
+    position: absolute;
+    z-index: 1;
+  }
+
+  // Слой 2: Прицелы и FAI  
+  .aiming-layer {
+    position: absolute;
     width: 100%;
     height: 100%;
-    position: relative;
-    z-index: 1;
+    z-index: 10;
+    pointer-events: none;
+
+    // Подслой 2.1: Пунктирная линия
+    .aim-line-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 11;
+      pointer-events: none;
+    }
+
+    // Подслой 2.2: Квадрат и прицелы
+    .crosshair-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 12;
+      pointer-events: none;
+    }
+  }
+
+  // Слой 3: Индикаторы со значениями
+  .indicators-layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    pointer-events: none;
+
+    // Подслой 3.1: Индикаторы квадрата
+    .lock-indicators-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 25;
+      pointer-events: none;
+    }
   }
 
   .target-crosshair {

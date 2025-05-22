@@ -6,11 +6,11 @@
       viewBox="-200 -50 400 100" 
       preserveAspectRatio="xMidYMid meet"
     )
-      g.stable-horizon(:transform="`rotate(${-rollValue * rollSensValue * extRollFactor}) translate(0, ${-pitchValue * pitchSensValue * extPitchFactor * 4})`")
+      g.stable-horizon(:transform="`rotate(${-externalRollValue}) translate(0, ${-externalPitchValue * 2})`")
         line.horizon-line.far-left(x1="-180" y1="0" x2="-100" y2="0" stroke="#0ff" stroke-width="4")
         line.horizon-line.far-right(x1="100" y1="0" x2="180" y2="0" stroke="#0ff" stroke-width="4")
 
-      g.artificial-horizon(:transform="`rotate(${-rollValue * rollSensValue}) translate(0, ${-pitchValue * pitchSensValue * 4})`")
+      g.artificial-horizon(:transform="`rotate(${-internalRollValue}) translate(0, ${-internalPitchValue * 2})`")
         line.horizon-line.left(x1="-90" y1="0" x2="-40" y2="0" stroke="#0ff" stroke-width="4")
         line.horizon-line.right(x1="40" y1="0" x2="90" y2="0" stroke="#0ff" stroke-width="4")
 
@@ -25,11 +25,19 @@
   import { computed } from 'vue'
   
   const props = defineProps({
-    roll: {
+    internalRoll: {
       type: [Number, String],
       default: 0
     },
-    pitch: {
+    externalRoll: {
+      type: [Number, String],
+      default: 0
+    },
+    internalPitch: {
+      type: [Number, String],
+      default: 0
+    },
+    externalPitch: {
       type: [Number, String],
       default: 0
     },
@@ -43,11 +51,11 @@
     },
     externalRollFactor: {
       type: [Number, String],
-      default: 0.3
+      default: 1.0
     },
     externalPitchFactor: {
       type: [Number, String],
-      default: 0.3
+      default: 1.0
     },
     posX: {
       type: [Number, String],
@@ -59,8 +67,10 @@
     }
   })
   
-  const rollValue = computed(() => Number(props.roll))
-  const pitchValue = computed(() => Number(props.pitch))
+  const internalRollValue = computed(() => Number(props.internalRoll))
+  const externalRollValue = computed(() => Number(props.externalRoll))
+  const internalPitchValue = computed(() => Number(props.internalPitch))
+  const externalPitchValue = computed(() => Number(props.externalPitch))
   const rollSensValue = computed(() => Number(props.rollSensitivity))
   const pitchSensValue = computed(() => Number(props.pitchSensitivity))
   const extRollFactor = computed(() => Number(props.externalRollFactor))

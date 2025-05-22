@@ -34,33 +34,62 @@
           .setting-value {{ altitude }} м
       
       .settings-group
-        .setting-title Крен
+        .setting-title Крен внутр
         .setting-control
           input(
             type="range"
             min="-45"
             max="45"
             step="1"
-            v-model="localRoll"
-            @input="updateRoll"
+            v-model="localInternalRoll"
+            @input="updateInternalRoll"
           )
-          .setting-value {{ roll }}°
+          .setting-value {{ internalRoll }}°
       
       .settings-group
-        .setting-title Танг
+        .setting-title Крен зовн
+        .setting-control
+          input(
+            type="range"
+            min="-45"
+            max="45"
+            step="1"
+            v-model="localExternalRoll"
+            @input="updateExternalRoll"
+          )
+          .setting-value {{ externalRoll }}°
+      
+      .settings-group
+        .setting-title Танг внутр
         .setting-control
           .range-with-labels
-            .min-label -45° (вниз)
+            .min-label 
             input(
               type="range"
               min="-45"
               max="45"
               step="1"
-              v-model="localPitch"
-              @input="updatePitch"
+              v-model="localInternalPitch"
+              @input="updateInternalPitch"
             )
-            .max-label +45° (вверх)
-          .setting-value {{ pitch }}°
+            .max-label 
+          .setting-value {{ internalPitch }}°
+      
+      .settings-group
+        .setting-title Танг зовн
+        .setting-control
+          .range-with-labels
+            .min-label 
+            input(
+              type="range"
+              min="-45"
+              max="45"
+              step="1"
+              v-model="localExternalPitch"
+              @input="updateExternalPitch"
+            )
+            .max-label 
+          .setting-value {{ externalPitch }}°
       
       .settings-group
         .setting-title Режим
@@ -327,13 +356,21 @@ const props = defineProps({
     type: [Number, String],
     default: 100
   },
-  roll: {
+  internalRoll: {
     type: [Number, String],
-    default: -3
+    default: 0
   },
-  pitch: {
+  externalRoll: {
     type: [Number, String],
-    default: -5
+    default: 0
+  },
+  internalPitch: {
+    type: [Number, String],
+    default: 0
+  },
+  externalPitch: {
+    type: [Number, String],
+    default: 0
   },
   mode: {
     type: String,
@@ -413,8 +450,10 @@ const props = defineProps({
 const emit = defineEmits([
   'update:speed',
   'update:altitude',
-  'update:roll',
-  'update:pitch',
+  'update:internalRoll',
+  'update:externalRoll',
+  'update:internalPitch',
+  'update:externalPitch',
   'update:mode',
   'update:gas',
   'update:flaps',
@@ -446,8 +485,10 @@ const toggleSection = (section) => {
 
 const localSpeed = ref(props.speed)
 const localAltitude = ref(props.altitude)
-const localRoll = ref(props.roll)
-const localPitch = ref(props.pitch)
+const localInternalRoll = ref(props.internalRoll)
+const localExternalRoll = ref(props.externalRoll)
+const localInternalPitch = ref(props.internalPitch)
+const localExternalPitch = ref(props.externalPitch)
 const localMode = ref(props.mode)
 const localGas = ref(props.gas)
 const localFlaps = ref(props.flaps)
@@ -479,12 +520,20 @@ watch(() => props.altitude, (newVal) => {
   localAltitude.value = newVal
 })
 
-watch(() => props.roll, (newVal) => {
-  localRoll.value = newVal
+watch(() => props.internalRoll, (newValue) => {
+  localInternalRoll.value = newValue
 })
 
-watch(() => props.pitch, (newVal) => {
-  localPitch.value = newVal
+watch(() => props.externalRoll, (newValue) => {
+  localExternalRoll.value = newValue
+})
+
+watch(() => props.internalPitch, (newValue) => {
+  localInternalPitch.value = newValue
+})
+
+watch(() => props.externalPitch, (newValue) => {
+  localExternalPitch.value = newValue
 })
 
 watch(() => props.mode, (newVal) => {
@@ -564,12 +613,20 @@ const updateAltitude = () => {
   emit('update:altitude', parseInt(localAltitude.value))
 }
 
-const updateRoll = () => {
-  emit('update:roll', parseInt(localRoll.value))
+const updateInternalRoll = () => {
+  emit('update:internalRoll', Number(localInternalRoll.value))
 }
 
-const updatePitch = () => {
-  emit('update:pitch', parseInt(localPitch.value))
+const updateExternalRoll = () => {
+  emit('update:externalRoll', Number(localExternalRoll.value))
+}
+
+const updateInternalPitch = () => {
+  emit('update:internalPitch', Number(localInternalPitch.value))
+}
+
+const updateExternalPitch = () => {
+  emit('update:externalPitch', Number(localExternalPitch.value))
 }
 
 const updateMode = () => {

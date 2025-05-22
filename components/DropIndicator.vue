@@ -1,6 +1,6 @@
 <template lang="pug">
-.skid-indicator(:style="{ left: `${posX}px`, top: `${posY}px` }")
-  .title СКИД
+.drop-indicator(:style="{ left: `${posX}px`, top: `${posY}px` }")
+  .title ДРОП
   .value {{ value }}
 </template>
 
@@ -22,7 +22,7 @@ defineProps({
 </script>
 
 <style lang="scss" scoped>
-.skid-indicator {
+.drop-indicator {
   position: absolute;
   width: 110px;
   height: 32px;
