@@ -1,75 +1,68 @@
 <template lang="pug">
   .drone-ui
-    // Слой 1: Фон (z-index: 1)
+
     BackgroundImage(
       ref="backgroundRef"
       :offsetX="backgroundOffset.x"
       :offsetY="backgroundOffset.y"
-      :isHorizonMode="isHorizonMode"
+      :isHorizonMode="isZoomPanelActive"
       :imageSrc="backgroundImageSrc"
     )
 
-    // Слой 2: Прицелы и FAI (z-index: 10)
-    .aiming-layer
-      FlightAttitudeIndicator(
-        :internalRoll="internalRoll"
-        :externalRoll="externalRoll"
-        :internalPitch="internalPitch"
-        :externalPitch="externalPitch"
-        :rollSensitivity="hudSettings.rollSensitivity"
-        :pitchSensitivity="hudSettings.pitchSensitivity"
-        :externalRollFactor="hudSettings.externalRollFactor"
-        :externalPitchFactor="hudSettings.externalPitchFactor"
-        :posX="358"
-        :posY="118"
-        :style="horizonModeStyle"
-      )
+    FlightAttitudeIndicator(
+      :internalRoll="internalRoll"
+      :externalRoll="externalRoll"
+      :internalPitch="internalPitch"
+      :externalPitch="externalPitch"
+      :rollSensitivity="hudSettings.rollSensitivity"
+      :pitchSensitivity="hudSettings.pitchSensitivity"
+      :externalRollFactor="hudSettings.externalRollFactor"
+      :externalPitchFactor="hudSettings.externalPitchFactor"
+      :posX="358"
+      :posY="118"
+      :style="horizonModeStyle"
+    )
 
-      // Подслой 2.1: Пунктирная линия (z-index: 11)
-      .aim-line-layer
-        AimLine(
-          v-if="isAimMode"
-          :isActive="isAimMode"
-          :length="aimLineLength"
-          :angle="aimLineAngle"
-          :centerX="360"
-          :centerY="120"
-          :squareSize="squareSize"
-          :squarePosition="squarePosition"
-          :reticleOffsetX="reticleOffsetX"
-          :reticleOffsetY="reticleOffsetY"
-        )
+    AimLine(
+      v-if="isAimMode"
+      :isActive="isAimMode"
+      :length="aimLineLength"
+      :angle="aimLineAngle"
+      :centerX="360"
+      :centerY="120"
+      :squareSize="squareSize"
+      :squarePosition="squarePosition"
+      :reticleOffsetX="reticleOffsetX"
+      :reticleOffsetY="reticleOffsetY"
+    )
 
-      // Подслой 2.2: Квадрат и прицелы (z-index: 12)
-      .crosshair-layer
-        TargetCrosshair(
-          v-if="isHorizonMode || (crosshairMode === 4) || (crosshairMode === 5)"
-          ref="targetCrosshairRef"
-          :posX="targetPosition.x"
-          :posY="targetPosition.y"
-          :screenWidth="720"
-          :screenHeight="480"
-          :crosshairMode="crosshairMode"
-          :isHorizonMode="isHorizonMode"
-          :faiOffset="faiOffsetNormalized"
-          :faiCenterX="flightAttitudeCenter.x"
-          :faiCenterY="flightAttitudeCenter.y"
-          v-model:targetPercentage="targetPercentage"
-        )
+    TargetCrosshair(
+      v-if="crosshairMode >= 1 && crosshairMode <= 5"
+      ref="targetCrosshairRef"
+      :posX="targetPosition.x"
+      :posY="targetPosition.y"
+      :screenWidth="720"
+      :screenHeight="480"
+      :crosshairMode="crosshairMode"
+      :isHorizonMode="isZoomPanelActive"
+      :faiOffset="faiOffsetNormalized"
+      :faiCenterX="flightAttitudeCenter.x"
+      :faiCenterY="flightAttitudeCenter.y"
+      v-model:targetPercentage="targetPercentage"
+    )
 
-      TargetZoomPanel(
-        ref="zoomPanelRef"
-        :isActive="isHorizonMode"
-        :targetPosX="targetPosition.x"
-        :targetPosY="targetPosition.y"
-        :isHorizonMode="isHorizonMode"
-        :imageSrc="backgroundImageSrc"
-        :mainScreenWidth="720"
-        :mainScreenHeight="480"
-        :crosshairMode="crosshairMode"
-      )
+    TargetZoomPanel(
+      ref="zoomPanelRef"
+      :isActive="isZoomPanelActive"
+      :targetPosX="targetPosition.x"
+      :targetPosY="targetPosition.y"
+      :isHorizonMode="isZoomPanelActive"
+      :imageSrc="backgroundImageSrc"
+      :mainScreenWidth="720"
+      :mainScreenHeight="480"
+      :crosshairMode="crosshairMode"
+    )
 
-    // Слой 3: Индикаторы со значениями (z-index: 20)
     .indicators-layer
       SpeedAltitudeBlock(
         type="speed"
@@ -135,7 +128,7 @@
       DropIndicator(
         v-if="isAimMode"
         :value="skidValue"
-        :posX="598"
+        :posX="586"
         :posY="356"
       )
 
@@ -152,20 +145,20 @@
         :posY="436"
       )
 
-      // Подслой 3.1: Индикаторы квадрата (z-index: 25)
-      .lock-indicators-layer
-        LockIndicator(
+      LockIndicator(
           v-if="crosshairMode === 4"
           :value="targetPercentage"
           :posX="360"
           :posY="436"
-        )
+      )
 
-        LockAttackIndicator(
+      LockAttackIndicator(
           v-if="crosshairMode === 5"
           :posX="360"
           :posY="436"
-        )
+      )
+
+        
 
     DroneSettingsMenu(
       v-model:speed="speed"
@@ -229,7 +222,7 @@ const hudSettings = ref({
 const speed = ref(110)
 const altitude = ref(100)
 const mode = ref('STAB')
-const crosshairMode = ref(1)
+const crosshairMode = ref(0)
 const isAimMode = ref(false)
 const aimLineLength = ref(180)
 const aimLineAngle = ref(0)
@@ -251,8 +244,13 @@ const isHorizonMode = computed(() => {
   return mode.value === 'HORIZON'
 })
 
+const isZoomPanelActive = computed(() => {
+  return crosshairMode.value >= 1 && crosshairMode.value <= 3
+})
+
 const horizonModeStyle = computed(() => {
-  if (isHorizonMode.value) {
+  // FlightAttitudeIndicator поднимается вверх, когда активна TargetZoomPanel (режимы 1-3)
+  if (isZoomPanelActive.value) {
     return {
       transform: 'translate(-50%, calc(-50% - 86px))',
       transition: 'transform 0.5s ease-out'
@@ -285,7 +283,7 @@ const moveTarget = (deltaX, deltaY) => {
 }
 
 const handleKeyDown = (event) => {
-  if (!isHorizonMode.value) return
+  if (!isZoomPanelActive.value) return
 
   const step = targetMoveStep.value
 
@@ -384,25 +382,7 @@ const updateBackgroundPosition = (x, y) => {
 
 watch(mode, (newMode, oldMode) => {
   if (newMode === 'HORIZON') {
-    if (targetPosition.value.x === 0.5 && targetPosition.value.y === 0.5) {
-      updateTargetPosition(0.5, 0.4)
-    }
     isAimMode.value = false
-
-    if (crosshairMode.value === 4) {
-      crosshairMode.value = 1
-    }
-  } else if (newMode === 'STAB' && oldMode === 'HORIZON') {
-  }
-})
-
-watch(crosshairMode, (newMode) => {
-  if (newMode === 4 && mode.value === 'HORIZON') {
-    mode.value = 'STAB'
-  }
-
-  if (newMode === 5) {
-    mode.value = 'AUTO'
   }
 })
 
@@ -463,62 +443,17 @@ defineExpose({
   width: 720px;
   height: 480px;
 
-  // Слой 1: Фон
   .background-image {
     position: absolute;
-    z-index: 1;
+    z-index: 0;
   }
 
-  // Слой 2: Прицелы и FAI  
-  .aiming-layer {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    pointer-events: none;
-
-    // Подслой 2.1: Пунктирная линия
-    .aim-line-layer {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 11;
-      pointer-events: none;
-    }
-
-    // Подслой 2.2: Квадрат и прицелы
-    .crosshair-layer {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 12;
-      pointer-events: none;
-    }
-  }
-
-  // Слой 3: Индикаторы со значениями
   .indicators-layer {
     position: absolute;
     width: 100%;
     height: 100%;
-    z-index: 20;
+    z-index: 2;
     pointer-events: none;
-
-    // Подслой 3.1: Индикаторы квадрата
-    .lock-indicators-layer {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 25;
-      pointer-events: none;
-    }
-  }
-
-  .target-crosshair {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 200;
   }
 }
 </style> 

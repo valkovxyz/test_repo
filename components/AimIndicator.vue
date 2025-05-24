@@ -1,7 +1,7 @@
 <template lang="pug">
 .aim-indicator(:style="{ left: `${posX}px`, top: `${posY}px` }")
   .title ПРИЦЕЛ
-  .value(:class="`aim-${isActive ? 'active' : 'inactive'}`") {{ isActive ? 'УВІМКН' : 'ВИМКН' }}
+  .value(:class="`aim-${isActive ? 'active' : 'inactive'}`") {{ isActive ? 'УВМКН' : 'ВИМКН' }}
 </template>
 
 <script setup>
@@ -24,9 +24,9 @@ defineProps({
 <style lang="scss" scoped>
 .aim-indicator {
   position: absolute;
-  width: 183px;
+  width: 172px;
   height: 32px;
-  background-color: #000;
+  background-color: #2600FF;
   color: #fff;
   font-family: 'ARS-M-VCR', monospace;
   display: flex;
@@ -41,9 +41,9 @@ defineProps({
   }
 
   .value {
-    width: 80px;
+    width: 70px;
     text-align: center;
-    padding: 2px 8px;
+    padding: 2px 0;
     text-transform: uppercase;
 
     &.aim-active {

@@ -26,7 +26,7 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
+  z-index: 2;
   transform: translateX(-50%);
   padding: 4px;
   box-sizing: border-box;

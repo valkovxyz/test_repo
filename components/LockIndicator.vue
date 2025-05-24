@@ -34,7 +34,7 @@ defineProps({
   justify-content: space-between;
   padding: 0 5px;
   box-sizing: border-box;
-  z-index: 5;
+  z-index: 2;
   transform: translateX(-50%);
 
   .title {

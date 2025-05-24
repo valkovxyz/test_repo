@@ -201,7 +201,7 @@ defineExpose({
     position: absolute;
     top: 10px;
     left: 10px;
-    width: 144px;
+    width: 136px;
     height: 24px;
     background-color: #FFDD00;
     color: #000000;
@@ -209,15 +209,16 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2px 4px;
+    padding: 2px 0;
     box-sizing: border-box;
     z-index: 10;
-    text-align: center;
     
     .title {
       text-transform: uppercase;
       margin-right: 4px;
-      line-height: 0.5;
+      padding: 0;
+      margin: 0;
+      text-align: center;
     }
     
     .value {
@@ -258,7 +259,7 @@ defineExpose({
       z-index: 5;
       pointer-events: none;
       transition: transform 0.3s ease;
-      mix-blend-mode: var(--crosshair-blend-mode);
+      mix-blend-mode: $mix-blend-value;
       .crosshair-svg {
         width: 100%;
         height: 100%;

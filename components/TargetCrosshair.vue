@@ -143,7 +143,7 @@ const dashedLineStyle = computed(() => {
   const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI)
 
   const lineOffset = 25 + 8 + 6
-  const endOffset = 12  // Отступ от конца (FAI)
+  const endOffset = 12 
 
   const visibleLength = Math.max(0, fullLength - lineOffset - endOffset)
 
@@ -174,7 +174,7 @@ const attackDashedLineStyle = computed(() => {
   const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI)
 
   const lineOffset = 25 + 8 + 6
-  const endOffset = 12  // Отступ от конца (FAI)
+  const endOffset = 12
 
   const visibleLength = Math.max(0, fullLength - lineOffset - endOffset)
 
@@ -221,9 +221,10 @@ defineExpose({
 .target-crosshair {
   position: absolute;
   transform: translate(-50%, -50%);
-  z-index: 300;
+  z-index: 1;
   pointer-events: none;
-  mix-blend-mode: var(--crosshair-blend-mode);
+  mix-blend-mode: $mix-blend-value;
+  
 
   .crosshair-container {
     position: relative;
@@ -269,7 +270,6 @@ defineExpose({
       width: 4px;
       height: 4px;
       background-color: #00FFEA;
-      box-shadow: 0 0 4px #00FFEA;
       mix-blend-mode: color-dodge;
     }
 

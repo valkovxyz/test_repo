@@ -56,7 +56,7 @@ defineProps({
     }
     
     &.mode-auto {
-      background-color: #f00;
+      background-color: #2600FF;
     }
   }
 }

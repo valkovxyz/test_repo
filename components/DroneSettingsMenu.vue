@@ -3,241 +3,30 @@
   .menu-title HUD
   
   .settings-section
-    .section-header(@click="toggleSection('hudBasic')")
-      .section-title Основные настройки
-      .section-toggle {{ sectionStates.hudBasic ? '▼' : '►' }}
-    .section-content(v-if="sectionStates.hudBasic")
+    .section-content
       .settings-group
-        .setting-title Скорость
-        .setting-control
-          input(
-            type="range"
-            min="0"
-            max="200"
-            step="1"
-            v-model="localSpeed"
-            @input="updateSpeed"
-          )
-          .setting-value {{ speed }} км/г
-      
-      .settings-group
-        .setting-title Висота
-        .setting-control
-          input(
-            type="range"
-            min="0"
-            max="500"
-            step="1"
-            v-model="localAltitude"
-            @input="updateAltitude"
-          )
-          .setting-value {{ altitude }} м
-      
-      .settings-group
-        .setting-title Крен внутр
-        .setting-control
-          input(
-            type="range"
-            min="-45"
-            max="45"
-            step="1"
-            v-model="localInternalRoll"
-            @input="updateInternalRoll"
-          )
-          .setting-value {{ internalRoll }}°
-      
-      .settings-group
-        .setting-title Крен зовн
-        .setting-control
-          input(
-            type="range"
-            min="-45"
-            max="45"
-            step="1"
-            v-model="localExternalRoll"
-            @input="updateExternalRoll"
-          )
-          .setting-value {{ externalRoll }}°
-      
-      .settings-group
-        .setting-title Танг внутр
-        .setting-control
-          .range-with-labels
-            .min-label 
-            input(
-              type="range"
-              min="-45"
-              max="45"
-              step="1"
-              v-model="localInternalPitch"
-              @input="updateInternalPitch"
-            )
-            .max-label 
-          .setting-value {{ internalPitch }}°
-      
-      .settings-group
-        .setting-title Танг зовн
-        .setting-control
-          .range-with-labels
-            .min-label 
-            input(
-              type="range"
-              min="-45"
-              max="45"
-              step="1"
-              v-model="localExternalPitch"
-              @input="updateExternalPitch"
-            )
-            .max-label 
-          .setting-value {{ externalPitch }}°
-      
-      .settings-group
-        .setting-title Режим
+        .setting-title Режим польоту
         .setting-control
           select(v-model="localMode" @change="updateMode")
             option(value="STAB") STAB
             option(value="HORIZON") HORIZON
             option(value="AUTO") AUTO
-      
-      .settings-group
-        .setting-title Газ
-        .setting-control
-          input(
-            type="range"
-            min="0"
-            max="100"
-            step="1"
-            v-model="localGas"
-            @input="updateGas"
-          )
-          .setting-value {{ gas }}%
-      
-      .settings-group
-        .setting-title Закр
-        .setting-control
-          input(
-            type="range"
-            min="0"
-            max="10"
-            step="1"
-            v-model="localFlaps"
-            @input="updateFlaps"
-          )
-          .setting-value {{ flaps }}
-      
-      .settings-group
-        .setting-title Сигнал
-        .setting-control
-          input(
-            type="range"
-            min="0"
-            max="100"
-            step="1"
-            v-model="localSignal"
-            @input="updateSignal"
-          )
-          .setting-value {{ signal }}
-      
-      .settings-group
-        .setting-title Бат
-        .setting-control
-          input(
-            type="range"
-            min="0"
-            max="100"
-            step="1"
-            v-model="localBatteryPercentage"
-            @input="updateBatteryPercentage"
-          )
-          .setting-value {{ batteryPercentage }}%
-      
-      .settings-group
-        .setting-title Напр. бат
-        .setting-control
-          input(
-            type="range"
-            min="10"
-            max="30"
-            step="0.1"
-            v-model="localVoltage"
-            @input="updateVoltage"
-          )
-          .setting-value {{ voltage }}v
   
   .settings-section
-    .section-header(@click="toggleSection('navControl')")
-      .section-title Navigation control settings
-      .section-toggle {{ sectionStates.navControl ? '▼' : '►' }}
-    .section-content(v-if="sectionStates.navControl")
+    .section-content
       .settings-group
-        .setting-title Чутл. крен
-        .setting-control
-          input(
-            type="range"
-            min="0.1"
-            max="2"
-            step="0.1"
-            v-model="localHUDSettings.rollSensitivity"
-            @input="updateHUDRollSensitivity"
-          )
-          .setting-value {{ formatNumber(hudSettings.rollSensitivity) }}
-      
-      .settings-group
-        .setting-title Чутл. танг
-        .setting-control
-          input(
-            type="range"
-            min="0.1"
-            max="2"
-            step="0.1"
-            v-model="localHUDSettings.pitchSensitivity"
-            @input="updateHUDPitchSensitivity"
-          )
-          .setting-value {{ formatNumber(hudSettings.pitchSensitivity) }}
-      
-      .settings-group
-        .setting-title Наруж. крен
-        .setting-control
-          input(
-            type="range"
-            min="0.1"
-            max="1"
-            step="0.05"
-            v-model="localHUDSettings.externalRollFactor"
-            @input="updateHUDExternalRollFactor"
-          )
-          .setting-value {{ formatNumber(hudSettings.externalRollFactor) }}
-      
-      .settings-group
-        .setting-title Наруж. танг
-        .setting-control
-          input(
-            type="range"
-            min="0.1"
-            max="1"
-            step="0.05"
-            v-model="localHUDSettings.externalPitchFactor"
-            @input="updateHUDExternalPitchFactor"
-          )
-          .setting-value {{ formatNumber(hudSettings.externalPitchFactor) }}
-  
-  .settings-section
-    .section-header(@click="toggleSection('crosshair')")
-      .section-title Crosshair Settings
-      .section-toggle {{ sectionStates.crosshair ? '▼' : '►' }}
-    .section-content(v-if="sectionStates.crosshair")
-      .settings-group
-        .setting-title Режим прицела
+        .setting-title Режим прицілу
         .setting-control
           select(v-model="localCrosshairMode" @change="updateCrosshairMode")
+            option(:value="0") 0
             option(:value="1") 1
             option(:value="2") 2
             option(:value="3") 3
             option(:value="4") 4
             option(:value="5") 5
         
-      .settings-group(v-if="sectionStates.crosshair && (parseInt(localCrosshairMode) === 4 || parseInt(localCrosshairMode) === 5)")
-        .setting-title Процент цели
+      .settings-group(v-if="parseInt(localCrosshairMode) === 4 || parseInt(localCrosshairMode) === 5")
+        .setting-title 
         .setting-control
           input(
             type="range"
@@ -250,12 +39,9 @@
           .setting-value {{ localTargetPercentage }}%
   
   .settings-section
-    .section-header(@click="toggleSection('aimMode')")
-      .section-title Режим ПРИЦЕЛ
-      .section-toggle {{ sectionStates.aimMode ? '▼' : '►' }}
-    .section-content(v-if="sectionStates.aimMode")
+    .section-content
       .settings-group
-        .setting-title Статус ПРИЦЕЛ
+        .setting-title СКИД
         .setting-control
           .checkbox-control
             input(
@@ -342,6 +128,160 @@
             @input="updateSkidValue"
           )
           .setting-value {{ skidValue }}
+  
+  .settings-section
+    .section-header(@click="toggleSection('hudBasic')")
+      .section-title Індикатори
+      .section-toggle {{ sectionStates.hudBasic ? '▼' : '►' }}
+    .section-content(v-if="sectionStates.hudBasic")
+      .settings-group
+        .setting-title Швидк
+        .setting-control
+          input(
+            type="range"
+            min="0"
+            max="200"
+            step="1"
+            v-model="localSpeed"
+            @input="updateSpeed"
+          )
+          .setting-value {{ speed }} км/г
+      
+      .settings-group
+        .setting-title Висота
+        .setting-control
+          input(
+            type="range"
+            min="0"
+            max="500"
+            step="1"
+            v-model="localAltitude"
+            @input="updateAltitude"
+          )
+          .setting-value {{ altitude }} м
+      
+      .settings-group
+        .setting-title Крен внутр
+        .setting-control
+          input(
+            type="range"
+            min="-45"
+            max="45"
+            step="1"
+            v-model="localInternalRoll"
+            @input="updateInternalRoll"
+          )
+          .setting-value {{ internalRoll }}°
+      
+      .settings-group
+        .setting-title Крен зовн
+        .setting-control
+          input(
+            type="range"
+            min="-45"
+            max="45"
+            step="1"
+            v-model="localExternalRoll"
+            @input="updateExternalRoll"
+          )
+          .setting-value {{ externalRoll }}°
+      
+      .settings-group
+        .setting-title Танг внутр
+        .setting-control
+          .range-with-labels
+            .min-label 
+            input(
+              type="range"
+              min="-45"
+              max="45"
+              step="1"
+              v-model="localInternalPitch"
+              @input="updateInternalPitch"
+            )
+            .max-label 
+          .setting-value {{ internalPitch }}°
+      
+      .settings-group
+        .setting-title Танг зовн
+        .setting-control
+          .range-with-labels
+            .min-label 
+            input(
+              type="range"
+              min="-45"
+              max="45"
+              step="1"
+              v-model="localExternalPitch"
+              @input="updateExternalPitch"
+            )
+            .max-label 
+          .setting-value {{ externalPitch }}°
+      
+      .settings-group
+        .setting-title Газ
+        .setting-control
+          input(
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            v-model="localGas"
+            @input="updateGas"
+          )
+          .setting-value {{ gas }}%
+      
+      .settings-group
+        .setting-title Закр
+        .setting-control
+          input(
+            type="range"
+            min="0"
+            max="10"
+            step="1"
+            v-model="localFlaps"
+            @input="updateFlaps"
+          )
+          .setting-value {{ flaps }}
+      
+      .settings-group
+        .setting-title Сигнал
+        .setting-control
+          input(
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            v-model="localSignal"
+            @input="updateSignal"
+          )
+          .setting-value {{ signal }}
+      
+      .settings-group
+        .setting-title Батарея
+        .setting-control
+          input(
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            v-model="localBatteryPercentage"
+            @input="updateBatteryPercentage"
+          )
+          .setting-value {{ batteryPercentage }}%
+      
+      .settings-group
+        .setting-title Напр. бат
+        .setting-control
+          input(
+            type="range"
+            min="10"
+            max="30"
+            step="0.1"
+            v-model="localVoltage"
+            @input="updateVoltage"
+          )
+          .setting-value {{ voltage }}v
 </template>
 
 <script setup>
@@ -407,7 +347,7 @@ const props = defineProps({
   },
   crosshairMode: {
     type: Number,
-    default: 1
+    default: 0
   },
   isAimMode: {
     type: Boolean,
@@ -473,10 +413,10 @@ const emit = defineEmits([
   'update:targetPercentage'
 ])
 const sectionStates = reactive({
-  hudBasic: false,
-  navControl: false,
+  flightMode: false,
   crosshair: false,
-  aimMode: false
+  aimMode: false,
+  hudBasic: false
 })
 
 const toggleSection = (section) => {
@@ -687,16 +627,6 @@ const updateHUDExternalPitchFactor = () => {
 
 const updateCrosshairMode = () => {
   emit('update:crosshairMode', parseInt(localCrosshairMode.value))
-  
-  if (parseInt(localCrosshairMode.value) === 4 && localMode.value === 'HORIZON') {
-    localMode.value = 'STAB'
-    emit('update:mode', localMode.value)
-  }
-  
-  if (parseInt(localCrosshairMode.value) === 5) {
-    localMode.value = 'AUTO'
-    emit('update:mode', localMode.value)
-  }
 }
 
 const updateIsAimMode = () => {

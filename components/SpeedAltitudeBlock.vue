@@ -6,7 +6,9 @@
     .title {{ title }}
     .value-line
       .trend-indicator
-        .arrow {{ arrowChar }}
+        .arrow
+          svg(width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg")
+            path(d="M0 10V0H2V2H4V4H6V6H4V8H2V10H0Z" fill="#00FFEA")
         .bars-viewport(:style="barsViewportStyle")
           .bars-container(:style="barsContainerStyle" @transitionend="onAnimationEnd")
             .bar(
@@ -52,8 +54,6 @@ const props = defineProps({
     default: 0
   }
 });
-
-const arrowChar = '►';
 
 const BAR_HEIGHT_PX = 1.5;
 const BAR_WIDTH_PX = 8;
@@ -155,7 +155,7 @@ const onAnimationEnd = () => {
   font-family: 'ARS-M-VCR', monospace;
   display: flex;
   flex-direction: column;
-  padding: 5px;
+  padding: 8px;
   box-sizing: border-box;
 
   .title {
@@ -165,8 +165,7 @@ const onAnimationEnd = () => {
 
   .value-line {
     display: flex;
-    margin-top: 10px;
-    margin-left: 5px;
+    margin-top: 8px
   }
 
   .trend-indicator {
@@ -176,12 +175,14 @@ const onAnimationEnd = () => {
   }
 
   .arrow {
-    color: #0ff;
-    font-size: 12px;
-    margin-right: 4px;
-  }
-
-  .bars-viewport, .bars-container, .bar {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+    
+    svg {
+      display: block;
+      flex-shrink: 0;
+    }
   }
 
   .value-text {

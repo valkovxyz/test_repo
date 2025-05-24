@@ -2,7 +2,6 @@
 .aim-line-container(v-if="isActive")
   .aim-line-wrapper(:style="wrapperStyle")
     svg.aim-svg(width="720" height="720")
-      // Пунктирная линия вниз от центра
       line(
         x1="360"
         y1="360"
@@ -13,7 +12,6 @@
         stroke-dasharray="0,15,12,6"
         v-if="actualLength > 0"
       )
-      // Ромб (квадрат повернутый на 45 градусов)
       rect(
         :x="360 - squareSize / 2"
         :y="calculatedSquarePosition - squareSize / 2"
@@ -21,10 +19,9 @@
         :height="squareSize"
         fill="none"
         stroke="#00ffff"
-        stroke-width="2"
+        stroke-width="4"
         :transform="`rotate(45, 360, ${calculatedSquarePosition})`"
       )
-      // CS-стиль прицела внутри ромба
       g(:transform="`translate(${360 + reticleOffsetXPx}, ${calculatedSquarePosition + reticleOffsetYPx})`")
         // Горизонтальные линии
         line(
@@ -43,7 +40,6 @@
           stroke="#00ffff"
           stroke-width="4"
         )
-        // Вертикальные линии
         line(
           x1="0"
           y1="-29"
@@ -140,6 +136,8 @@ const wrapperStyle = computed(() => {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: $mix-blend-value;
   
   .aim-line-wrapper {
     position: absolute;

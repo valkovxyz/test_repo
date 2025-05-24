@@ -94,19 +94,20 @@
   
   <style lang="scss" scoped>
   .flight-attitude-indicator {
-    position: absolute;
-    width: 400px;
-    height: 100px;
+  position: absolute;
+  width: 400px;
+  height: 100px;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: $mix-blend-value;
+
+  svg {
     overflow: visible;
-    pointer-events: none;
-    z-index: 10;
-  
-    svg {
-      overflow: visible;
-      
-      g {
-        transition: transform 0.3s ease-out;
-      }
+    
+    g {
+      transition: transform 0.3s ease-out;
     }
   }
+}
   </style> 
